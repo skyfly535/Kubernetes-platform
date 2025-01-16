@@ -1,0 +1,15 @@
+---
+service:
+  internalPort: 8000
+  externalPort: 8000
+
+image:
+  repository: registry.otus-skyfly.ru/skyfly534/ui
+  tag: latest
+
+ingress:
+  class: nginx
+  host: prod.pages.otus-skyfly.ru
+
+mongoHost:
+mongoPort:

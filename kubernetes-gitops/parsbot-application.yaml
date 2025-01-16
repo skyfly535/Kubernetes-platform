@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: parsbot
+  namespace: argocd
+spec:
+  destination:
+    namespace: parsbot
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: pars-bot
+    repoURL: 'https://gitlab.otus-skyfly.ru/skyfly534/pars-bot.git'
+    targetRevision: main
+    helm:
+      releaseName: prod
+  syncPolicy:
+    automated: 
+      prune: true 
+      selfHeal: true 
+    syncOptions:
+    - CreateNamespace=true
+  project: otus

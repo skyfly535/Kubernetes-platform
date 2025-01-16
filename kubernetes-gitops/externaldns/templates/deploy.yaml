@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "externaldns.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "externaldns.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: external-dns
+  template:
+    metadata:
+      labels:
+        app: external-dns
+    spec:
+      serviceAccountName: {{ include "externaldns.name" . }}
+      containers:
+        - name: external-dns
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --txt-owner-id={{ .Values.config.txt_owner_id }}
+            - --source=service
+            - --source=ingress
+            - --provider=yandex
+            - --yandex-folder={{ .Values.config.folder_id }}
+            - --yandex-iam-key-file=/etc/kubernetes/iamkeyfile.json
+            - --txt-prefix={{ .Values.config.txt_prefix }}
+          volumeMounts:
+            - name: yandex-iam-key-file
+              mountPath: /etc/kubernetes
+              readOnly: true
+      volumes:
+        - name: yandex-iam-key-file
+          secret:
+            secretName: {{ include "externaldns.fullname" . }}
+            items:
+              - key: iamkeyfile.json
+                path: iamkeyfile.json

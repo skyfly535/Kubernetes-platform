@@ -1,0 +1,17 @@
+name: externaldns
+home: ""
+sources: []
+version: 0.5.1-a
+description: A Helm chart for Kubernetes
+keywords: []
+maintainers: []
+icon: ""
+apiversion: v2
+condition: ""
+tags: ""
+appversion: 0.5.1
+deprecated: false
+annotations: {}
+kubeversion: ""
+dependencies: []
+type: application

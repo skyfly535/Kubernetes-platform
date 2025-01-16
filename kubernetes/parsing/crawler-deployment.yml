@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawler
+  labels:
+    app: crawler
+    component: crawler-pars
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crawler
+      component: crawler-pars
+  template:
+    metadata:
+      name: crawler-pod
+      labels:
+        app: crawler
+        component: crawler-pars
+    spec:
+      containers:
+      - image: skyfly534/crawler
+        name: crawler

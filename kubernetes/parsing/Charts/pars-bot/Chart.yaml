@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+appVersion: 1.0.0
+name: pars-bot
+version: 1.0.0
+description: OTUS Main Project pars-bot application
+maintainers:
+  - name: RKozlovsky
+    email: Roman@Kozlovsky.com

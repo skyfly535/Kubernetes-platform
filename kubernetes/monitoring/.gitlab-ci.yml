@@ -1,0 +1,31 @@
+stages:
+  - deploy
+
+image: dtzar/helm-kubectl:3.13
+
+variables:
+  #GRAFANA_DOMAIN: grafana.${CI_PAGES_DOMAIN}
+  GRAFANA_DOMAIN: grafana.otus-skyfly.ru
+
+deploy:
+  stage: deploy
+  variables:
+    KUBE_NAMESPACE: monitoring
+  before_script:
+    - helm repo add grafana https://grafana.github.io/helm-charts
+    - helm repo update
+    - kubectl config use-context ${KUBE_CONTEXT}
+  script:
+    - echo "Deploy ${KUBE_NAMESPACE}"
+    - helm upgrade --install --wait --atomic
+        --namespace "${KUBE_NAMESPACE}" --create-namespace
+        --values values.yaml
+        --set grafana.ingress.hosts={${GRAFANA_DOMAIN}}
+        --set grafana.ingress.tls[0].hosts={${GRAFANA_DOMAIN}}
+        loki-stack grafana/loki-stack
+    - kubectl get secret --namespace monitoring loki-stack-grafana -o jsonpath="{.data.admin-password}" | base64 -d ; echo
+  only:
+    - main
+  #   - tags
+  # except:
+  #   - branches

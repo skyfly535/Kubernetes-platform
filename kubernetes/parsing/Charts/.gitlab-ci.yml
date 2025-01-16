@@ -1,0 +1,78 @@
+stages:
+  - test
+  - staging
+
+.extended_deploy:
+  image: dtzar/helm-kubectl:3.13
+  variables:
+    name: "$CI_ENVIRONMENT_SLUG"
+    host: "$name.$CI_PAGES_DOMAIN"
+    reg: "$CI_REGISTRY/skyfly534"
+    repo: "https://$CI_SERVER_HOST/skyfly534"
+
+  before_script:
+    - kubectl config use-context "$KUBE_CONTEXT"
+    - echo "Creating Docker registry secret..."
+    - |
+      kubectl create namespace "$KUBE_NAMESPACE"
+      kubectl create secret docker-registry regcred \
+        --docker-server=registry.otus-skyfly.ru \
+        --docker-username="$DEPLOY_USER" \
+        --docker-password="$DEPLOY_PASSWORD" \
+        --docker-email="otus2024@mail.ru" \
+        --namespace="$KUBE_NAMESPACE" || echo "Secret already exists"
+    - echo "Docker registry secret created successfully."
+
+    - echo "$CI_ENVIRONMENT_SLUG"
+    - echo "$name"
+    - echo "$CI_PAGES_DOMAIN"
+    - echo "$CI_REGISTRY"
+    - echo "$reg"
+    - echo "$repo"
+    - echo "$host"
+    - echo "$reg/ui"
+
+    - |
+      function deploy() {
+        mkdir -p pars-bot/chats
+        helm dep build pars-bot
+        echo "Deploy helm release $name to $KUBE_NAMESPACE"
+
+        helm upgrade --install --wait --atomic --debug \
+          --namespace="$KUBE_NAMESPACE" --create-namespace \
+          --set ui.ingress.host="$host" \
+          --set ui.image.repository="$reg/ui" \
+          --set ui.image.tag="latest" \
+          --set crawler.image.repository="$reg/crawler" \
+          --set crawler.image.tag="latest" \
+          --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
+          "$name" \
+          pars-bot/
+      }
+
+test:
+  stage: test
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - env
+    - exit 0
+  only:
+    - triggers
+    - branches
+
+staging:
+  stage: staging
+  variables:
+    KUBE_NAMESPACE: staging
+  extends: .extended_deploy
+  environment:
+    name: staging
+    url: "http://$host"
+  script:
+    - deploy
+  only:
+    refs:
+      - staging
+  except:
+    - triggers

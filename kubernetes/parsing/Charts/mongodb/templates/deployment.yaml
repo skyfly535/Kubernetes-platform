@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "mongo.fullname" . }}
+  labels:
+    app: pars-bot
+    component: mongo
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pars-bot
+      component: mongo
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      name: mongo
+      labels:
+        app: pars-bot
+        component: mongo
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        name: mongo
+        volumeMounts:
+        #- name: mongo-persistent-storage
+        - name: mongo-data
+          mountPath: /data/db
+      volumes:
+      - name: mongo-data
+        emptyDir: {}
+#       - name: mongo-persistent-storage
+#         persistentVolumeClaim:
+#           claimName: mongo-pvc
+
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mongo-pvc
+# spec:
+#   storageClassName: ""
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 4Gi
+#   volumeName: mongo-pv

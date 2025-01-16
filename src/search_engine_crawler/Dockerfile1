@@ -1,0 +1,19 @@
+FROM python:3.6.4-jessie
+
+WORKDIR /app
+COPY . /app
+
+RUN pip install -r /app/requirements.txt
+
+#ENV MONGO - адрес mongodb-хоста
+#MONGO_PORT - порт для подключения к mongodb-хосту
+#ENV RMQ_HOST - адрес rabbitmq-хоста
+#ENV RMQ_QUEUE - имя очереди rabbitmq
+#ENV RMQ_USERNAME - пользователь для подключения к rabbitmq-серверу
+#ENV RMQ_PASSWORD - пароль пользователя
+#ENV CHECK_INTERVAL - минимальное время между повторными проверками одного и того же url
+#ENV EXCLUDE_URLS - адреса которые будут исключены из обхода записанные через запятую в формате простых регулярных выражений
+ENV EXCLUDE_URLS '.*github.com' 
+
+ENTRYPOINT ["python", "-u", "/app/crawler/crawler.py"]
+CMD ["https://vitkhab.github.io/search_engine_test_site/"]

@@ -1,0 +1,15 @@
+service_account_key_file    = "/path/to/key/json"
+cloud_id                    = "example cloud_id"
+folder_id                   = "example folder_id"
+public_key_path             = "~/.ssh/appuser.pub"
+
+cluster_name                = "skyfly535"
+k8s_version                 = "1.27"
+service_account_id          = "example service_account_id"
+network_id                  = "example network_id"
+subnet_id                   = "example subnet_id"
+node_cpu_count              = 4
+node_memory_size            = 8
+node_disk_size              = 64
+infra_nodes_count           = 1
+workload_nodes_count        = 1
